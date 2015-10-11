@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+    <path style="fill:#1964b6;fill-rule:nonzero;stroke:none" d=""/>
+    <path style="fill:#1964b7;fill-rule:nonzero;stroke:none" d=""/>
+</svg>
+
+    @@@
+
+<svg xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <style type="text/css">
+<![CDATA[
+    .cl0 {
+        fill: #1964b6;
+        fill-rule: nonzero;
+        stroke: none;
+    }
+
+    .cl1 {
+        fill: #1964b7;
+        fill-rule: nonzero;
+        stroke: none;
+    }]]>
+        </style>
+    </defs>
+    <path d="" class="cl0"/>
+    <path d="" class="cl1"/>
+</svg>
