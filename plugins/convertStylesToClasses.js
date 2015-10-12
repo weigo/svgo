@@ -6,12 +6,14 @@
 
 exports.type = 'full';
 
-exports.active = false;
+exports.active = true;
 
 exports.description = 'extracts styles into classes.';
 
 exports.params = {
-    indent: 4
+    indent: 4,
+    removeCssStyles: [],
+    addFontStyles: {}
 };
 
 exports.fn = function (data, params) {
@@ -35,14 +37,13 @@ exports.fn = function (data, params) {
 
     CssClass.prototype = {
         equalTo: function (other) {
-            function isEqual(property) {
-                return this.styles[property] === other.styles[property];
-            }
+            var thisPropertyNames = Object.keys(this.styles);
+            var otherPropertyNames = Object.keys(other.styles);
 
-            var thisPropertyNames = Object.getOwnPropertyNames(this.styles);
-            var otherPropertyNames = Object.getOwnPropertyNames(other);
-
-            return thisPropertyNames.length === otherPropertyNames.length && thisPropertyNames.every(isEqual);
+            return thisPropertyNames.length === otherPropertyNames.length
+                && thisPropertyNames.every(function (property) {
+                    return this.styles[property] === other.styles[property];
+                }, this);
         },
         toCss: function () {
             return '\n' + indent + '.' + this.name + ' {\n' + Object.keys(this.styles).map(function (key) {
@@ -63,7 +64,7 @@ exports.fn = function (data, params) {
             }, this);
 
             if (registeredClasses.length > 0) {
-                name = registeredClasses[0].name;
+                name = registeredClasses[0];
             } else {
                 name = "cl" + this.currentClass;
                 cssClass.name = name;
@@ -77,6 +78,15 @@ exports.fn = function (data, params) {
             return Object.keys(this.classes).map(function (key) {
                 return this.classes[key].toCss();
             }, this).join('\n');
+        },
+        pruneCssStyles: function (styles) {
+            if (styles) {
+                Object.keys(this.classes).forEach(function (key) {
+                    styles.forEach(function (style) {
+                        delete this[style];
+                    }, this.classes[key].styles);
+                }, this);
+            }
         }
     };
 
@@ -99,11 +109,13 @@ exports.fn = function (data, params) {
 
     function extractStyleToClass(element) {
         var styles = (element.attr('style') ? element.attr('style').value : '').trim(),
-            classes = (element.attr('class') ? element.attr('class').value : '').split(/\s*,\s*/).filter(function (clazz) {
+            classes = (element.attr('class') ? element.attr('class').value : '').split(/\s+/).filter(function (clazz) {
                 return clazz.trim().length > 0;
             });
 
         if (styles.length > 0) {
+            // TODO: probably add font-style to improve font stretching
+            // TODO: add rounding of font sizes to improve class merging!
             classes.push(cache.add(new CssClass(styles)));
             element.addAttr(new Attribute('class', classes.join(' ')));
         }
@@ -154,7 +166,7 @@ exports.fn = function (data, params) {
         }
 
         extractClassesFromElementsWithStyleAttribute(data.content);
-
+        cache.pruneCssStyles(params.removeCssStyles || []);
         style.content.push(new JSAPI({cdata: cache.toCss()}));
     }
 
