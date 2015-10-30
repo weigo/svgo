@@ -54,3 +54,4 @@ plugins:
   - removeAttrs
   - addClassesToSVGElement
   - removeStyleElement
+  - convertStylesToClasses
