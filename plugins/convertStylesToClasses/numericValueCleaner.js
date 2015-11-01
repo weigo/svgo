@@ -6,7 +6,7 @@ function NumericValueCleaner(options) {
     this.defaultPx = options.defaultPx || true;
     this.convertToPx = options.convertToPx || true;
     this.regNumericValues = /^([\-+]?\d*\.?\d+([eE][\-+]?\d+)?)(px|pt|pc|mm|cm|m|in|ft|em|ex|%)?$/;
-    this.removeLeadingZero = require('../lib/svgo/tools').removeLeadingZero;
+    this.removeLeadingZero = require('../../lib/svgo/tools').removeLeadingZero;
     this.absoluteLengths = { // relative to px
         cm: 96 / 2.54,
         mm: 9600 / 2.54,
@@ -27,8 +27,8 @@ NumericValueCleaner.prototype = {
                 units = match[3] || '';
 
             // convert absolute values to pixels
-            if (this.convertToPx && this.units && (this.units in absoluteLengths)) {
-                var pxNum = +(absoluteLengths[this.units] * match[1]).toFixed(this.floatPrecision);
+            if (this.convertToPx && units && (units in this.absoluteLengths)) {
+                var pxNum = +(this.absoluteLengths[units] * match[1]).toFixed(this.floatPrecision);
 
                 if (String(pxNum).length < match[0].length) {
                     num = pxNum;
@@ -53,3 +53,4 @@ NumericValueCleaner.prototype = {
     }
 };
 
+module.exports = NumericValueCleaner;

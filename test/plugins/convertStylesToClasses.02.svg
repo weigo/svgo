@@ -9,19 +9,19 @@
     <defs>
         <style type="text/css">
 <![CDATA[
-    .cl0 {
+    .c0 {
         fill: #1964b6;
         fill-rule: nonzero;
         stroke: none;
     }
 
-    .cl1 {
+    .c1 {
         fill: #1964b7;
         fill-rule: nonzero;
         stroke: none;
     }]]>
         </style>
     </defs>
-    <path d="" class="cl0"/>
-    <path d="" class="cl1"/>
+    <path d="" class="c0"/>
+    <path d="" class="c1"/>
 </svg>

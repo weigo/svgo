@@ -27,10 +27,28 @@ CssClass.prototype.equalTo = function (other) {
     var thisPropertyNames = Object.keys(this.styles);
     var otherPropertyNames = Object.keys(other.styles);
 
-    return thisPropertyNames.length === otherPropertyNames.length
-        && thisPropertyNames.every(function (property) {
+    return thisPropertyNames.length === otherPropertyNames.length &&
+        thisPropertyNames.every(function (property) {
             return this.styles[property] === other.styles[property];
         }, this);
+};
+
+/**
+ *
+ * @param styles
+ */
+CssClass.prototype.pruneCssStyles = function (styles) {
+    if (styles) {
+        styles.forEach(function (style) {
+            delete this[style];
+        }, this.styles);
+    }
+};
+
+CssClass.prototype.cleanUpNumericValues = function (numericValueCleaner) {
+    Object.keys(this.styles).forEach(function (key) {
+        this[key] = numericValueCleaner.cleanUpWhenMatches(this[key]);
+    }, this.styles);
 };
 
 /**
@@ -58,43 +76,41 @@ function CssStyleCache(params) {
     this.numericValueCleaner = new NumericValueCleaner(params);
 }
 
-CssStyleCache.prototype = {
-    add: function (styleSpec) {
-        var name, registeredClasses, cssClass = new CssClass(styleSpec);
+/**
+ *
+ * @param styleSpec
+ * @returns {*}
+ */
+CssStyleCache.prototype.add = function (styleSpec) {
+    var name, registeredClasses, cssClass = new CssClass(styleSpec);
 
-        Object.keys(cssClass.styles).forEach(function (key) {
-            cssClass.styles[key] = this.numericValueCleaner.cleanUpWhenMatches(cssClass.styles[key]);
-        }, this);
+    cssClass.pruneCssStyles(this.options.removeCssStyles);
+    cssClass.cleanUpNumericValues(this.numericValueCleaner);
 
-        registeredClasses = Object.keys(this.classes).filter(function (registeredClass) {
-            return this.classes[registeredClass].equalTo(cssClass);
-        }, this);
+    registeredClasses = Object.keys(this.classes).filter(function (registeredClass) {
+        return this.classes[registeredClass].equalTo(cssClass);
+    }, this);
 
-        if (registeredClasses.length > 0) {
-            name = registeredClasses[0];
-        } else {
-            name = "c" + this.currentClass;
-            cssClass.name = name;
-            this.currentClass++;
-            this.classes[name] = cssClass;
-        }
-
-        return name;
-    },
-    toCss: function () {
-        return Object.keys(this.classes).map(function (key) {
-            return this.classes[key].toCss(this.indent);
-        }, this).join('\n');
-    },
-    pruneCssStyles: function (styles) {
-        if (styles) {
-            Object.keys(this.classes).forEach(function (key) {
-                styles.forEach(function (style) {
-                    delete this[style];
-                }, this.classes[key].styles);
-            }, this);
-        }
+    if (registeredClasses.length > 0) {
+        name = registeredClasses[0];
+    } else {
+        name = 'c' + this.currentClass;
+        cssClass.name = name;
+        this.currentClass++;
+        this.classes[name] = cssClass;
     }
+
+    return name;
+};
+
+/**
+ *
+ * @returns {string}
+ */
+CssStyleCache.prototype.toCss = function () {
+    return Object.keys(this.classes).map(function (key) {
+        return this.classes[key].toCss(this.indent);
+    }, this).join('\n');
 };
 
 module.exports = CssStyleCache;

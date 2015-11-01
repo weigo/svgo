@@ -1,7 +1,7 @@
 'use strict';
 
 /*
- * Extract styles from ... elements and convert them into classes. Equal style attributes will get mapped onto one class.
+ * Extract styles from elements and convert them into classes. Equal style attributes will get mapped onto one class.
  */
 
 var JSAPI = require('../../lib/svgo/jsAPI'), CssStyleCache = new require('./cssStyleCache');
@@ -10,22 +10,27 @@ exports.type = 'full';
 
 exports.active = true;
 
-exports.description = 'extracts styles into classes.';
+exports.description = 'extract style attributes into classes. The resulting classes will be unified where possible.';
 
 exports.params = {
     indent: 4,
     removeCssStyles: [],
-    addFontStyles: {
-        'font-stretch': 'normal'
-    },
-    floatPrecision: 2,
-    leadingZero: true,
-    defaultPx: true,
-    convertToPx: true
+    numericValueCleaner: {
+        floatPrecision: 2,
+        leadingZero: true,
+        defaultPx: true,
+        convertToPx: true
+    }
 };
 
+/**
+ * Walk the element tree and extract style attributes into CSS classes.
+ * @param data
+ * @param params
+ * @returns {*}
+ */
 exports.fn = function (data, params) {
-    var cache = new CssStyleCache(params),
+    var cache = new CssStyleCache(params.numericValueCleaner),
         svg = findElement('svg', data),
         defs, style;
 
@@ -61,14 +66,19 @@ exports.fn = function (data, params) {
             defs.content.push(style);
         }
 
-        treeWalker(data, extractStyleToClass);
-        cache.pruneCssStyles(params.removeCssStyles || []);
+        visit(data, extractStyleToClass);
         style.content.push(new JSAPI({cdata: cache.toCss()}));
     }
 
     return data;
 };
 
+/**
+ * Constructor for a new <code>JSAPI</code> element with the given name and parent.
+ * @param name name of new element.
+ * @param parent parent element to associate the new element with.
+ * @returns {JSAPI} the newly created element.
+ */
 function newElement(name, parent) {
     var element = new JSAPI({
         elem: name,
@@ -81,18 +91,30 @@ function newElement(name, parent) {
     return element;
 }
 
-function treeWalker(items, fn) {
-    items.content.forEach(function (item) {
-        fn(item);
+/**
+ * Visit the given item and recursively apply the function <code>fn</code> to it and it's children.
+ * @param item  item to visit.
+ * @param fn function to apply to item (and it's children).
+ * @returns {*} returns the visited item.
+ */
+function visit(item, fn) {
+    item.content.forEach(function (it) {
+        fn(it);
 
-        if (item.content) {
-            treeWalker(item, fn);
+        if (it.content) {
+            visit(it, fn);
         }
     });
 
-    return items;
+    return item;
 }
 
+/**
+ * Constructor function for a new attribute.
+ * @param name The new attributes name.
+ * @param value The new attributes value.
+ * @constructor
+ */
 function Attribute(name, value) {
     this.name = name;
     this.value = value;
@@ -100,8 +122,14 @@ function Attribute(name, value) {
     this.prefix = '';
 }
 
-function findElement(name, data) {
-    var elements = data.content.filter(function (element) {
+/**
+ * Find the first element with name <code>name</code> in the given element <code>item</code>.
+ * @param name name of element to find.
+ * @param item the item use when filtering the children by element name.
+ * @returns {*}
+ */
+function findElement(name, item) {
+    var elements = item.content.filter(function (element) {
         return element.isElem(name);
     });
 
