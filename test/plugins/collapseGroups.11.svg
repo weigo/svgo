@@ -1,29 +1,27 @@
 <svg xmlns="http://www.w3.org/2000/svg">
-    <g stroke="#000">
-        <g id="star">
-            <path id="bar" d="..."/>
-        </g>
+    <clipPath id="a">
+       <path d="..."/>
+    </clipPath>
+    <path d="..."/>
+    <g clip-path="url(#a)">
+        <path d="..." transform="scale(.2)"/>
     </g>
-    <g>
-        <animate id="frame0" attributeName="visibility" values="visible" dur="33ms" begin="0s;frame27.end"/>
-        <path d="..." fill="#272727"/>
-        <path d="..." fill="#404040"/>
-        <path d="..." fill="#2d2d2d"/>
+    <g mask="url(#a)">
+        <path d="..." transform="scale(.2)"/>
     </g>
 </svg>
 
 @@@
 
 <svg xmlns="http://www.w3.org/2000/svg">
-    <g stroke="#000">
-        <g id="star">
-            <path id="bar" d="..."/>
-        </g>
+    <clipPath id="a">
+        <path d="..."/>
+    </clipPath>
+    <path d="..."/>
+    <g clip-path="url(#a)">
+        <path d="..." transform="scale(.2)"/>
     </g>
-    <g>
-        <animate id="frame0" attributeName="visibility" values="visible" dur="33ms" begin="0s;frame27.end"/>
-        <path d="..." fill="#272727"/>
-        <path d="..." fill="#404040"/>
-        <path d="..." fill="#2d2d2d"/>
+    <g mask="url(#a)">
+        <path d="..." transform="scale(.2)"/>
     </g>
 </svg>

@@ -1,12 +1,14 @@
 {
     "globals": {
         "phantom": false,
+        "after": false,
         "describe": false,
         "before": false,
-        "it": false
+        "it": false,
+        "beforeEach": false
     },
     "node": true,
-    "globalstrict": true,
+    "strict": "global",
     "expr": true,
     "curly": false,
     "camelcase": true,
@@ -23,5 +25,6 @@
     "unused": true,
     "loopfunc": true,
     "trailing": true,
-    "lastsemic": true
+    "lastsemic": true,
+    "esversion": 6
 }

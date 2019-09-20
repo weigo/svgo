@@ -3,6 +3,15 @@
 var SHOULD = require('should'),
     FS = require('fs'),
     PATH = require('path'),
+    JSAPI = require(process.env.COVERAGE ?
+                     '../../lib-cov/svgo/jsAPI' :
+                     '../../lib/svgo/jsAPI'),
+    CSSClassList = require(process.env.COVERAGE ?
+                     '../../lib-cov/svgo/css-class-list' :
+                     '../../lib/svgo/css-class-list'),
+    CSSStyleDeclaration = require(process.env.COVERAGE ?
+                     '../../lib-cov/svgo/css-style-declaration' :
+                     '../../lib/svgo/css-style-declaration'),
     SVG2JS = require(process.env.COVERAGE ?
                      '../../lib-cov/svgo/svg2js' :
                      '../../lib/svgo/svg2js');
@@ -178,6 +187,26 @@ describe('svg2js', function() {
         });
 
         describe('API', function() {
+
+            describe('clone()', function() {
+
+                it('svg should have property "clone"', function() {
+                    return root.content[3].should.have.property('clone');
+                });
+
+                it('svg.clone() should be an instance of JSAPI', function() {
+                    return root.content[3].clone().should.be.instanceOf(JSAPI);
+                });
+
+                it('root.content[3].content[0].clone() has a valid style property', function() {
+                    return root.content[3].content[0].clone().style.should.be.instanceof(CSSStyleDeclaration);
+                });
+
+                it('root.content[3].content[2].clone() has a valid class property', function() {
+                    return root.content[3].content[2].clone().class.should.be.instanceof(CSSClassList);
+                });
+
+            });
 
             describe('isElem()', function() {
 
@@ -378,6 +407,91 @@ describe('svg2js', function() {
 
         });
 
+    });
+
+    describe('malformed svg', function() {
+
+        var filepath = PATH.resolve(__dirname, './test.bad.svg'),
+            root,
+            error;
+
+        before(function(done) {
+
+            FS.readFile(filepath, 'utf8', function(err, data) {
+                if (err) {
+                    throw err;
+                }
+
+                try {
+                    SVG2JS(data, function(result) {
+                        root = result;
+                    });
+                } catch (e) {
+                    error = e;
+                }
+
+                done();
+            });
+
+        });
+
+        describe('root', function() {
+
+            it('should have property "error"', function() {
+                return root.should.have.property('error');
+            });
+
+        });
+
+        describe('root.error', function() {
+
+            it('should be an instance of String', function() {
+                return root.error.should.an.instanceOf(String);
+            });
+
+            it('should be "Error in parsing SVG: Unexpected close tag"', function() {
+                return root.error.should.equal('Error in parsing SVG: Unexpected close tag\nLine: 10\nColumn: 15\nChar: >');
+            });
+
+        });
+
+        describe('error', function() {
+
+            it('should not be thrown', function() {
+                return SHOULD.not.exist(error);
+            });
+
+        });
+
+    });
+
+    describe('entities', function() {
+        var filepath = PATH.resolve(__dirname, './test.entities.svg'),
+            root;
+
+        before(function(done) {
+            FS.readFile(filepath, 'utf8', function(err, data) {
+                if (err) throw err;
+
+                SVG2JS(data, function(result) {
+                    root = result;
+                });
+                done();
+            });
+        });
+
+        describe('root', function() {
+            it('should exist', function() {
+                return root.should.exist;
+            });
+
+            it('should have correctly parsed entities', function() {
+                var attrs = root.content[root.content.length - 1].attrs;
+
+                attrs['xmlns:x'].value.should.be.equal('http://ns.adobe.com/Extensibility/1.0/');
+                attrs['xmlns:graph'].value.should.be.equal('http://ns.adobe.com/Graphs/1.0/');
+            });
+        });
     });
 
 });

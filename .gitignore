@@ -6,3 +6,6 @@ bin/svgo-profiling
 *.sublime-*
 *.log
 .DS_Store
+.idea
+.vscode
+.npmrc
