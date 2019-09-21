@@ -4,7 +4,7 @@
  * Extract styles from elements and convert them into classes. Equal style attributes will get mapped onto one class.
  */
 
-var JSAPI = require('../../lib/svgo/jsAPI'), CssStyleCache = new require('./cssStyleCache');
+var JSAPI = require('../../lib/svgo/jsAPI'), CssStyleCache = require('./cssStyleCache');
 
 exports.type = 'full';
 
@@ -37,13 +37,11 @@ exports.fn = function (data, params) {
     function extractStyleToClass(item) {
         if (item.hasAttr('style')) {
             var styles = (item.attr('style').value || '').trim(),
-                classes = (item.attr('class') ? item.attr('class').value : '').split(/\s+/).filter(function (clazz) {
-                    return clazz.trim().length > 0;
-                });
+                classes = item.class.classNames;
 
             if (styles.length > 0) {
-                classes.push(cache.add(styles));
-                item.addAttr(new Attribute('class', classes.join(' ')));
+                item.addAttr(new Attribute('class', ''));
+                classes.add(cache.add(styles));
             }
 
             item.removeAttr('style');

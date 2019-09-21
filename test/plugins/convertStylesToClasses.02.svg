@@ -8,18 +8,18 @@
 <svg xmlns="http://www.w3.org/2000/svg">
     <defs>
         <style type="text/css">
-<![CDATA[
-    .c0 {
-        fill: #1964b6;
-        fill-rule: nonzero;
-        stroke: none;
-    }
+            <![CDATA[
+.c0 {
+fill: #1964b6;
+fill-rule: nonzero;
+stroke: none;
+}
 
-    .c1 {
-        fill: #1964b7;
-        fill-rule: nonzero;
-        stroke: none;
-    }]]>
+.c1 {
+fill: #1964b7;
+fill-rule: nonzero;
+stroke: none;
+}]]>
         </style>
     </defs>
     <path d="" class="c0"/>
